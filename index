@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lipid Profile Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+            --card-bg: #ffffff;
+            --body-bg: #f8fafc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background-color: var(--body-bg);
+            color: #1e293b;
+            line-height: 1.6;
+            padding: 1rem;
+        }
+        
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        header {
+              color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .header-description {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            display: flex;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            padding-right: 4rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        .unit-display {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .unit-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-calculate {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: white;
+        }
+        
+        .btn-clear {
+            background: linear-gradient(135deg, #64748b, #475569);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+        
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .result-formula {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin: 0.75rem 0;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .result-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        
+        .result-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .warning-box {
+            padding: 1rem;
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .warning-icon {
+            color: #f59e0b;
+            font-size: 1.5rem;
+        }
+        
+        .warning-content h3 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #92400e;
+        }
+        
+        .warning-content p {
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        
+        .category {
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .category:hover {
+            transform: scale(1.03);
+        }
+        
+        .category-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-range {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .category-indicator {
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+        
+        .category.active .category-indicator {
+            opacity: 1;
+        }
+        
+        .optimal { background-color: #dcfce7; color: #166534; }
+        .near-optimal { background-color: #fef3c7; color: #92400e; }
+        .borderline { background-color: #ffedd5; color: #9a3412; }
+        .high { background-color: #fee2e2; color: #b91c1c; }
+        .very-high { background-color: #fce7f3; color: #9d174d; }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <header>
+            <h1><i class="fas fa-flask"></i> Lipid Profile Calculator</h1>
+            <p class="header-description">Calculate LDL-C using Friedewald, Martin/Hopkins, and Sampson equations along with VLDL-C and Non-HDL-C</p>
+        </header>
+        
+        <main class="p-4 md:p-6">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-sliders-h"></i> Input Parameters</h2>
+                
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="hdl"><i class="fas fa-heartbeat"></i> HDL-Cholesterol</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="hdl" value="50">
+                            <span class="unit-display" id="hdlUnit">mg/dL</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="tc"><i class="fas fa-tint"></i> Total Cholesterol</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="tc" value="200">
+                            <span class="unit-display" id="tcUnit">mg/dL</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="tg"><i class="fas fa-vial"></i> Triglycerides</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="tg" value="150">
+                            <span class="unit-display" id="tgUnit">mg/dL</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="unit-toggle">
+                    <span>mg/dL</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="unitToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>mmol/L</span>
+                </div>
+                
+                <div class="button-group">
+                    <button id="calculateBtn" class="btn btn-calculate">
+                        <i class="fas fa-calculator"></i> Calculate
+                    </button>
+                    <button id="clearBtn" class="btn btn-clear">
+                        <i class="fas fa-eraser"></i> Clear
+                    </button>
+                </div>
+            </div>
+            
+            <div id="warnings"></div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-chart-line"></i> Calculated Results</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3 class="result-title"><i class="fas fa-calculator"></i> Non-HDL Cholesterol</h3>
+                        <div class="result-value" id="nonHdlResult">150 mg/dL</div>
+                        <div class="result-formula">Non-HDL-C = TC - HDL</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3 class="result-title"><i class="fas fa-user-md"></i> Friedewald Method</h3>
+                        <div class="result-detail">
+                            <span>LDL-C:</span>
+                            <span id="friedewaldLdl">100.0 mg/dL</span>
+                        </div>
+                        <div class="result-detail">
+                            <span>VLDL-C:</span>
+                            <span id="friedewaldVldl">30.0 mg/dL</span>
+                        </div>
+                        <div class="result-formula">LDL = TC - HDL - (TG / 5)</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3 class="result-title"><i class="fas fa-microscope"></i> Martin/Hopkins Method</h3>
+                        <div class="result-detail">
+                            <span>LDL-C:</span>
+                            <span id="martinLdl">98.5 mg/dL</span>
+                        </div>
+                        <div class="result-detail">
+                            <span>VLDL-C:</span>
+                            <span id="martinVldl">31.5 mg/dL</span>
+                        </div>
+                        <div class="result-formula">LDL = TC - HDL - (TG / factor)</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3 class="result-title"><i class="fas fa-dna"></i> Sampson Method</h3>
+                        <div class="result-detail">
+                            <span>LDL-C:</span>
+                            <span id="sampsonLdl">102.3 mg/dL</span>
+                        </div>
+                        <div class="result-detail">
+                            <span>VLDL-C:</span>
+                            <span id="sampsonVldl">28.7 mg/dL</span>
+                        </div>
+                        <div class="result-formula">LDL = TC/0.948 - HDL/ 0.971 - (TG/8.56 + (TG* nonHDL)/2140 - (TG*2)/16100) - 9.44</div>
+                    </div>
+                </div>
+                
+                <h3 class="card-title" style="margin-top: 2rem;"><i class="fas fa-list"></i> LDL Cholesterol Categories</h3>
+                <div class="categories-grid">
+                    <div class="category optimal" id="optimalCategory">
+                        <div class="category-title">Optimal</div>
+                        <div class="category-range">&lt;100 mg/dL</div>
+                        <div class="category-indicator"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="category near-optimal" id="nearOptimalCategory">
+                        <div class="category-title">Near Optimal</div>
+                        <div class="category-range">100-129 mg/dL</div>
+                        <div class="category-indicator"><i class="fas fa-circle"></i></div>
+                    </div>
+                    <div class="category borderline" id="borderlineCategory">
+                        <div class="category-title">Borderline</div>
+                        <div class="category-range">130-159 mg/dL</div>
+                        <div class="category-indicator"><i class="fas fa-circle"></i></div>
+                    </div>
+                    <div class="category high" id="highCategory">
+                        <div class="category-title">High</div>
+                        <div class="category-range">160-189 mg/dL</div>
+                        <div class="category-indicator"><i class="fas fa-circle"></i></div>
+                    </div>
+                    <div class="category very-high" id="veryHighCategory">
+                        <div class="category-title">Very High</div>
+                        <div class="category-range">≥190 mg/dL</div>
+                        <div class="category-indicator"><i class="fas fa-circle"></i></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Note: This calculator is for educational purposes only. Consult a healthcare professional for medical advice. We 			do not store any data.</p>
+            <p class="mt-2">Developed by Clinicalsci(2025) </p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const unitToggle = document.getElementById('unitToggle');
+        const hdlInput = document.getElementById('hdl');
+        const tcInput = document.getElementById('tc');
+        const tgInput = document.getElementById('tg');
+        const hdlUnit = document.getElementById('hdlUnit');
+        const tcUnit = document.getElementById('tcUnit');
+        const tgUnit = document.getElementById('tgUnit');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const warningsContainer = document.getElementById('warnings');
+        const nonHdlResult = document.getElementById('nonHdlResult');
+        const friedewaldLdl = document.getElementById('friedewaldLdl');
+        const friedewaldVldl = document.getElementById('friedewaldVldl');
+        const martinLdl = document.getElementById('martinLdl');
+        const martinVldl = document.getElementById('martinVldl');
+        const sampsonLdl = document.getElementById('sampsonLdl');
+        const sampsonVldl = document.getElementById('sampsonVldl');
+        
+        // Default values
+        const DEFAULT_VALUES = {
+            hdl: 50,
+            tc: 200,
+            tg: 150
+        };
+        
+        // Conversion factors
+        const CHOL_CONVERSION = 38.67;
+        const TRIG_CONVERSION = 88.57;
+        
+        // Martin/Hopkins lookup table
+        const martinTable = [
+            { min: 0, max: 49, factors: [3.5, 3.4, 3.3, 3.3, 3.2, 3.1] },
+            { min: 50, max: 56, factors: [4.0, 3.9, 3.7, 3.6, 3.6, 3.4] },
+            { min: 57, max: 61, factors: [4.3, 4.1, 4.0, 3.9, 3.8, 3.6] },
+            { min: 62, max: 66, factors: [4.5, 4.3, 4.1, 4.0, 3.9, 3.9] },
+            { min: 67, max: 71, factors: [4.7, 4.4, 4.3, 4.2, 4.1, 3.9] },
+            { min: 72, max: 75, factors: [4.8, 4.6, 4.4, 4.2, 4.2, 4.1] },
+            { min: 76, max: 79, factors: [4.9, 4.6, 4.5, 4.3, 4.3, 4.2] },
+            { min: 80, max: 83, factors: [5.0, 4.8, 4.6, 4.4, 4.3, 4.2] },
+            { min: 84, max: 87, factors: [5.1, 4.8, 4.6, 4.5, 4.4, 4.3] },
+            { min: 88, max: 92, factors: [5.2, 4.9, 4.7, 4.6, 4.4, 4.3] },
+            { min: 93, max: 96, factors: [5.3, 5.0, 4.8, 4.7, 4.5, 4.4] },
+            { min: 97, max: 100, factors: [5.4, 5.1, 4.8, 4.7, 4.5, 4.3] },
+            { min: 101, max: 105, factors: [5.5, 5.2, 5.0, 4.7, 4.6, 4.5] },
+            { min: 106, max: 110, factors: [5.6, 5.3, 5.0, 4.8, 4.6, 4.5] },
+            { min: 111, max: 115, factors: [5.7, 5.4, 5.1, 4.9, 4.7, 4.5] },
+            { min: 116, max: 120, factors: [5.8, 5.5, 5.2, 5.0, 4.8, 4.6] },
+            { min: 121, max: 126, factors: [6.0, 5.5, 5.3, 5.0, 4.8, 4.6] },
+            { min: 127, max: 132, factors: [6.1, 5.7, 5.3, 5.1, 4.9, 4.7] },
+            { min: 133, max: 138, factors: [6.2, 5.8, 5.4, 5.2, 5.0, 4.7] },
+            { min: 139, max: 146, factors: [6.3, 5.9, 5.6, 5.3, 5.0, 4.8] },
+            { min: 147, max: 154, factors: [6.5, 6.0, 5.7, 5.4, 5.1, 4.8] },
+            { min: 155, max: 163, factors: [6.7, 6.2, 5.8, 5.4, 5.2, 4.9] },
+            { min: 164, max: 173, factors: [6.8, 6.3, 5.9, 5.5, 5.3, 5.0] },
+            { min: 174, max: 185, factors: [7.0, 6.5, 6.0, 5.7, 5.4, 5.1] },
+            { min: 186, max: 201, factors: [7.3, 6.7, 6.2, 5.8, 5.5, 5.2] },
+            { min: 202, max: 220, factors: [7.6, 6.9, 6.4, 6.0, 5.6, 5.3] },
+            { min: 221, max: 247, factors: [8.0, 7.2, 6.6, 6.2, 5.9, 5.4] },
+            { min: 248, max: 292, factors: [8.5, 7.6, 7.0, 6.5, 6.1, 5.6] },
+            { min: 293, max: 399, factors: [9.5, 8.3, 7.5, 7.0, 6.5, 5.9] },
+            { min: 400, max: 99999, factors: [11.9, 10.0, 8.8, 8.1, 7.5, 6.7] }
+        ];
+        
+        // Event listeners
+        unitToggle.addEventListener('change', toggleUnits);
+        calculateBtn.addEventListener('click', calculate);
+        clearBtn.addEventListener('click', clearInputs);
+        
+        // Initialize
+        calculate();
+        
+        function toggleUnits() {
+            const isMmol = unitToggle.checked;
+            
+            // Update unit labels
+            const unit = isMmol ? 'mmol/L' : 'mg/dL';
+            hdlUnit.textContent = unit;
+            tcUnit.textContent = unit;
+            tgUnit.textContent = unit;
+            
+            // Convert input values
+            convertInputs(isMmol ? 'toMmol' : 'toMg');
+            
+            // Recalculate
+            calculate();
+        }
+        
+        function convertInputs(direction) {
+            const inputs = [hdlInput, tcInput, tgInput];
+            const convFactors = [CHOL_CONVERSION, CHOL_CONVERSION, TRIG_CONVERSION];
+            
+            inputs.forEach((input, index) => {
+                let value = parseFloat(input.value) || 0;
+                
+                if (direction === 'toMmol') {
+                    // mg/dL to mmol/L
+                    value = index < 2 ? value / CHOL_CONVERSION : value / TRIG_CONVERSION;
+                } else {
+                    // mmol/L to mg/dL
+                    value = index < 2 ? value * CHOL_CONVERSION : value * TRIG_CONVERSION;
+                }
+                
+                input.value = value.toFixed(2);
+            });
+        }
+        
+        function calculate() {
+            // Get input values
+            let hdl = parseFloat(hdlInput.value) || 0;
+            let tc = parseFloat(tcInput.value) || 0;
+            let tg = parseFloat(tgInput.value) || 0;
+            
+            const isMmol = unitToggle.checked;
+            let unit = isMmol ? 'mmol/L' : 'mg/dL';
+            
+            // Convert to mg/dL for calculations
+            if (isMmol) {
+                hdl = hdl * CHOL_CONVERSION;
+                tc = tc * CHOL_CONVERSION;
+                tg = tg * TRIG_CONVERSION;
+            }
+            
+            // Validate inputs
+            const warnings = [];
+            if (hdl <= 0 || tc <= 0 || tg < 0) {
+                warnings.push('Please enter valid positive values for all fields');
+            }
+            
+            // Calculate Non-HDL-C
+            const nonHdl = tc - hdl;
+            nonHdlResult.textContent = formatResult(nonHdl, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            
+            // Calculate Friedewald
+            let friedewaldLdlValue = 0;
+            let friedewaldVldlValue = 0;
+            if (tg < 400) {
+                friedewaldVldlValue = tg / 5;
+                friedewaldLdlValue = nonHdl - friedewaldVldlValue;
+            } else {
+                warnings.push('Friedewald equation not accurate for TG ≥ 400 mg/dL');
+            }
+            
+            friedewaldLdl.textContent = formatResult(friedewaldLdlValue, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            friedewaldVldl.textContent = formatResult(friedewaldVldlValue, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            
+            // Calculate Martin/Hopkins
+            let factor = 0;
+            let martinLdlValue = 0;
+            let martinVldlValue = 0;
+            
+            if (tg <= 800) {
+                // Determine column index based on Non-HDL-C
+                let colIndex;
+                if (nonHdl < 100) colIndex = 0;
+                else if (nonHdl >= 100 && nonHdl <= 129) colIndex = 1;
+                else if (nonHdl >= 130 && nonHdl <= 159) colIndex = 2;
+                else if (nonHdl >= 160 && nonHdl <= 189) colIndex = 3;
+                else if (nonHdl >= 190 && nonHdl <= 219) colIndex = 4;
+                else if (nonHdl >= 220) colIndex = 5;
+                
+                // Find the appropriate row in the lookup table
+                let row = martinTable.find(r => tg >= r.min && tg <= r.max);
+                if (!row) {
+                    // Use last row if TG is above the highest range
+                    row = martinTable[martinTable.length - 1];
+                }
+                
+                factor = row.factors[colIndex];
+                martinVldlValue = tg / factor;
+                martinLdlValue = nonHdl - martinVldlValue;
+            } else {
+                warnings.push('Martin/Hopkins equation not recommended for TG > 800 mg/dL');
+            }
+            
+            martinLdl.textContent = formatResult(martinLdlValue, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            martinVldl.textContent = formatResult(martinVldlValue, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            
+            // Calculate Sampson
+            let sampsonLdlValue = 0;
+            let sampsonVldlValue = 0;
+            
+            if (tg <= 3000) {
+                sampsonVldlValue = tg / 8.59 + (tg * nonHdl) / 2250 - (tg**2) / 16500
+                sampsonLdlValue = tc / 0.948 - hdl / 0.971 - (tg / 8.56 + (tg * nonHdl) / 2140 - (tg**2) / 16100) - 9.44
+            } else {
+                warnings.push('Sampson equation not recommended for TG > 3000 mg/dL');
+            }
+            
+            sampsonLdl.textContent = formatResult(sampsonLdlValue, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            sampsonVldl.textContent = formatResult(sampsonVldlValue, isMmol, CHOL_CONVERSION) + ' ' + unit;
+            
+            // Show warnings
+            displayWarnings(warnings, tg);
+            
+            // Update LDL category indicators
+            updateLdlCategory(martinLdlValue);
+        }
+        
+        function formatResult(value, isMmol, conversionFactor) {
+            if (isNaN(value) || value < 0) return 'N/A';
+            
+            // Convert back to mmol/L if needed
+            if (isMmol) {
+                value = value / conversionFactor;
+            }
+            
+            return value.toFixed(1);
+        }
+        
+        function displayWarnings(warnings, tg) {
+            warningsContainer.innerHTML = '';
+            
+            // Add TG-specific warnings
+            if (tg > 400) {
+                warnings.push('Triglycerides > 400 mg/dL: Friedewald equation may be inaccurate');
+            }
+            if (tg > 800) {
+                warnings.push('Triglycerides > 800 mg/dL: All equations may have reduced accuracy');
+            }
+            
+            if (warnings.length === 0) return;
+            
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning-box';
+            
+            let html = '<div class="warning-icon"><i class="fas fa-exclamation-triangle"></i></div>';
+            html += '<div class="warning-content">';
+            html += '<h3>Calculation Notes</h3>';
+            html += '<div><ul class="warning-list">';
+            
+            warnings.forEach(warning => {
+                html += `<li>${warning}</li>`;
+            });
+            
+            html += '</ul></div></div>';
+            
+            warningDiv.innerHTML = html;
+            warningsContainer.appendChild(warningDiv);
+        }
+        
+        function updateLdlCategory(ldlValue) {
+            // Reset all categories
+            document.querySelectorAll('.category').forEach(cat => {
+                cat.classList.remove('active');
+            });
+            
+            // Determine category and highlight active one
+            if (ldlValue < 100) {
+                document.getElementById('optimalCategory').classList.add('active');
+            } 
+            else if (ldlValue >= 100 && ldlValue <= 129) {
+                document.getElementById('nearOptimalCategory').classList.add('active');
+            } 
+            else if (ldlValue >= 130 && ldlValue <= 159) {
+                document.getElementById('borderlineCategory').classList.add('active');
+            } 
+            else if (ldlValue >= 160 && ldlValue <= 189) {
+                document.getElementById('highCategory').classList.add('active');
+            } 
+            else if (ldlValue >= 190) {
+                document.getElementById('veryHighCategory').classList.add('active');
+            }
+        }
+        
+        function clearInputs() {
+            // Reset input values to defaults
+            hdlInput.value = DEFAULT_VALUES.hdl;
+            tcInput.value = DEFAULT_VALUES.tc;
+            tgInput.value = DEFAULT_VALUES.tg;
+            
+            // Reset unit toggle to mg/dL
+            unitToggle.checked = false;
+            hdlUnit.textContent = 'mg/dL';
+            tcUnit.textContent = 'mg/dL';
+            tgUnit.textContent = 'mg/dL';
+            
+            // Clear warnings
+            warningsContainer.innerHTML = '';
+            
+            // Reset LDL category indicators
+            document.querySelectorAll('.category').forEach(cat => {
+                cat.classList.remove('active');
+            });
+            
+            // Recalculate with default values
+            calculate();
+        }
+    </script>
+</body>
+</html>
